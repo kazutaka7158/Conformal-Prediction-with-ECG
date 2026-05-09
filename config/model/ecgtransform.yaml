@@ -1,0 +1,6 @@
+name: ecg_transform
+type: classification
+
+num_classes: 2
+lr: 0.001
+weight_decay: 0.0001

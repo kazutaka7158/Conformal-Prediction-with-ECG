@@ -1,0 +1,35 @@
+# PTBDB dataset - Augmented data
+name: ptbdb_augmented
+type: classification
+dataset: ptbdb
+
+data_type: subtype
+metadata_file: data/metadata/ptbdb_metadata_500.csv
+sample_before: 198
+sample_after: 200
+batch_size: 32
+num_workers: 4
+split_ratio: 0.9
+train_folds: [1, 2, 3, 4, 5, 6, 7, 8]
+test_folds: [9, 10]
+num_classes: 12
+
+# Data processing options
+use_cleaned_data: false
+use_augmentation: true
+
+# Augmentation parameters
+augmentation:
+  gauss_noise:
+    p: 0.2
+    mean: 0
+    variance: 0.0001
+  gauss_blur:
+    p: 0.2
+  amplitude_scale:
+    p: 0.2
+  powerline_noise:
+    p: 0.2
+    ecg_frequency: 500
+    powerline_frequency: 60
+    amplitude_limit: 0.333

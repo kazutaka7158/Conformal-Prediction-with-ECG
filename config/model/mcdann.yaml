@@ -1,0 +1,5 @@
+name: mcdann
+type: classification
+
+lr: 0.001
+weight_decay: 0.0001

@@ -1,0 +1,43 @@
+# Main configuration for training
+# Usage examples:
+#   Classification with PTBDB clean data:
+#     python train.py task=classification dataset=ptbdb data_mode=clean model=mff_cnn
+#   Classification with PTBDB augmented data:
+#     python train.py task=classification dataset=ptbdb data_mode=augmented model=mff_cnn
+#   Classification with PTB-XL clean data:
+#     python train.py task=classification dataset=ptbxl data_mode=clean model=mff_cnn
+#   Classification with PTB-XL augmented data:
+#     python train.py task=classification dataset=ptbxl data_mode=augmented model=mff_cnn
+#   Segmentation (uses unet3pcgm by default):
+#     python train.py task=segmentation
+
+defaults:
+  - model: null
+  - trainer: default
+  - hydra: default
+  - _self_
+
+# Task selection: "classification" or "segmentation"
+task: null
+
+# For classification task: dataset selection
+# Options: "ptbdb", "ptbxl"
+dataset: null
+
+# For classification task: data mode
+# Options: "clean", "augmented"
+data_mode: null
+data_type: null
+
+# For segmentation task: model selection (default: unet3pcgm)
+# Options: "unet3pcgm"
+segmentation_model: unet3pcgm
+
+# Random seed
+seed: 42
+
+# Resume training from checkpoint
+# Set to path of checkpoint file (e.g., "checkpoints/epoch=10-val_loss=0.1234.ckpt")
+# Set to "last" to resume from the last checkpoint
+# Set to null to train from scratch
+resume_from_checkpoint: null

@@ -1,0 +1,13 @@
+# Segmentation configuration
+name: ludb
+type: segmentation
+dataset: ludb
+
+metadata_file: data/metadata/ludb_metadata_500.csv
+split_ratio: 0.8
+batch_size: 16
+num_workers: 4
+seed: 42
+
+# Model configuration (default: unet3pcgm)
+model: unet3pcgm
