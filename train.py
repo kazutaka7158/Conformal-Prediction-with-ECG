@@ -234,7 +234,7 @@ def train(cfg: DictConfig) -> None:
         project=wandb_project,
         name=logger_name,
         tags=wandb_tags,
-        save_dir=Path("logs") / task / data_type /f"{model_cfg.name}_{dataset}_{data_mode}" if task == "classification" else f"{data_cfg.name}",
+        save_dir=Path("logs") / task / data_type /f"{model_cfg.name}_{dataset}_{data_mode}" if task == "classification" else Path("logs") / task,
         log_model=True,
     )
 
