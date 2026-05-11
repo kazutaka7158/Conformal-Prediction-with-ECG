@@ -54,27 +54,27 @@ class DataGetter:
             raise ValueError(f"dataset must be 'ptbdb' or 'ptb-xl', but got {self.dataset}")
 
     def run(self):
-        self.download_data_if_needed()
-        # self.change_folder_structure()
-        self.package_data()
-        self.create_metadata()
-
-    def download_data_if_needed(self):
         if not self.original_path.exists():
-            print("Data not found. Downloading...")
-            command = [
-                "wget",
-                "-r",
-                "-N",
-                "-c",
-                "-np",
-                self.target_url
-            ]
-            subprocess.run(command, cwd=self.raw_data_dir)
-
-            self.data_dir.mkdir(parents=True, exist_ok=True)
+            self.download_data_if_needed()
+            # self.change_folder_structure()
+            self.package_data()
+            self.create_metadata()
         else:
             print("Data already exists. Skipping download.")
+
+    def download_data_if_needed(self):
+        print("Data not found. Downloading...")
+        command = [
+            "wget",
+            "-r",
+            "-N",
+            "-c",
+            "-np",
+            self.target_url
+        ]
+        subprocess.run(command, cwd=self.raw_data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        
 
     def package_data(self):
         if self.dataset == "ptbdb":

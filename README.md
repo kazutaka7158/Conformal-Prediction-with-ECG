@@ -177,6 +177,12 @@ source .venv/bin/activate  # On Linux/Mac
 
 ## Usage
 
+### Download data
+
+```bash
+uv run download_data.py
+```
+
 ### Training
 
 #### Classification
