@@ -188,48 +188,48 @@ Classification training requires three parameters:
 
 **PTBDB Dataset - Clean Data (MI vs Healthy):**
 ```bash
-uv run python train.py task=classification dataset=ptbdb data_mode=clean data_type=mihealthy model=mcdann
+uv run train.py task=classification dataset=ptbdb data_mode=clean data_type=mihealthy model=mcdann
 ```
 
 **PTBDB Dataset - Clean Data (Subtype):**
 ```bash
-uv run python train.py task=classification dataset=ptbdb data_mode=clean data_type=subtype model=mcdann
+uv run train.py task=classification dataset=ptbdb data_mode=clean data_type=subtype model=mcdann
 ```
 
 **PTBDB Dataset - Augmented Data (MI vs Healthy):**
 ```bash
-uv run python train.py task=classification dataset=ptbdb data_mode=augmented data_type=mihealthy model=mcdann
+uv run train.py task=classification dataset=ptbdb data_mode=augmented data_type=mihealthy model=mcdann
 ```
 
 **PTBDB Dataset - Augmented Data (Subtype):**
 ```bash
-uv run python train.py task=classification dataset=ptbdb data_mode=augmented data_type=subtype model=mcdann
+uv run train.py task=classification dataset=ptbdb data_mode=augmented data_type=subtype model=mcdann
 ```
 
 **PTB-XL Dataset - Clean Data (MI vs Healthy):**
 ```bash
-uv run python train.py task=classification dataset=ptbxl data_mode=clean data_type=mihealthy model=mcdann
+uv run train.py task=classification dataset=ptbxl data_mode=clean data_type=mihealthy model=mcdann
 ```
 
 **PTB-XL Dataset - Clean Data (Subtype):**
 ```bash
-uv run python train.py task=classification dataset=ptbxl data_mode=clean data_type=subtype model=mcdann
+uv run train.py task=classification dataset=ptbxl data_mode=clean data_type=subtype model=mcdann
 ```
 
 **PTB-XL Dataset - Augmented Data (MI vs Healthy):**
 ```bash
-uv run python train.py task=classification dataset=ptbxl data_mode=augmented data_type=mihealthy model=mcdann
+uv run train.py task=classification dataset=ptbxl data_mode=augmented data_type=mihealthy model=mcdann
 ```
 
 **PTB-XL Dataset - Augmented Data (Subtype):**
 ```bash
-uv run python train.py task=classification dataset=ptbxl data_mode=augmented data_type=subtype model=mcdann
+uv run train.py task=classification dataset=ptbxl data_mode=augmented data_type=subtype model=mcdann
 ```
 
 #### Segmentation
 
 ```bash
-uv run python train.py task=segmentation model=unet3pcgm
+uv run train.py task=segmentation model=unet3pcgm
 ```
 
 ### Training Modes
