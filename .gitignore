@@ -11,3 +11,4 @@ wheels/
 /data/
 /outputs/
 /logs/
+dataset-metadata.json
