@@ -203,8 +203,15 @@ def train(cfg: DictConfig) -> None:
         datamodule = get_segmentation_dataset(data_cfg.name, data_cfg)
 
     # Setup callbacks
+    if task == "classification":
+        output_dir = Path("outputs") / task / f"{model_cfg.name}" / f"{dataset}_{data_mode}"
+        logs_dir = Path("logs") / task / f"{model_cfg.name}" / f"{dataset}_{data_mode}"
+    else:
+        output_dir = Path("outputs") / task / f"{data_cfg.name}"
+        logs_dir = Path("logs") / task / f"{data_cfg.name}"
+
     checkpoint_callback = ModelCheckpoint(
-        dirpath=Path("outputs") / cfg.task / f"{model_cfg.name}" / f"{dataset}_{data_mode}" if task == "classification" else f"{data_cfg.name}",
+        dirpath=output_dir,
         filename="{epoch:02d}-{val_loss:.4f}",
         monitor="val_loss",
         mode="min",
@@ -221,12 +228,12 @@ def train(cfg: DictConfig) -> None:
     # Setup logger
     if task == "classification":
         logger_name = f"{task}_{data_type}_{model_cfg.name}_{dataset}_{data_mode}_"
-        wandb_project = "demo_ecg_classification"
+        wandb_project = "ecg_classification"
         wandb_tags = [task, model_cfg.name, dataset, data_mode, data_type]
     else:  # segmentation
         segmentation_model = cfg.get("segmentation_model", "unet3pcgm")
         logger_name = f"{task}_{segmentation_model}_{data_cfg.name}"
-        wandb_project = "demo_ecg_segmentation"
+        wandb_project = "ecg_segmentation"
         wandb_tags = [task, segmentation_model, data_cfg.name]
 
     # Use WandB logger
@@ -234,7 +241,7 @@ def train(cfg: DictConfig) -> None:
         project=wandb_project,
         name=logger_name,
         tags=wandb_tags,
-        save_dir=Path("logs") / task / data_type /f"{model_cfg.name}_{dataset}_{data_mode}" if task == "classification" else Path("logs") / task,
+        save_dir=logs_dir,
         log_model=True,
     )
 
@@ -263,7 +270,7 @@ def train(cfg: DictConfig) -> None:
     # Test
     trainer.test(model, datamodule=datamodule, ckpt_path="best")
 
-    print(f"Training completed! Results saved to: {cfg.run.dir}")
+    print(f"Training completed! Results saved to: {output_dir}")
 
 
 if __name__ == "__main__":
