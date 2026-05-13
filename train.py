@@ -204,15 +204,15 @@ def train(cfg: DictConfig) -> None:
 
     # Setup callbacks
     if task == "classification":
-        output_dir = Path("outputs") / task / f"{model_cfg.name}" / f"{dataset}_{data_mode}"
-        logs_dir = Path("logs") / task / f"{model_cfg.name}" / f"{dataset}_{data_mode}"
+        output_dir = Path("outputs") / task / f"{model_cfg.name}" / f"{dataset}_{data_mode}" / f"{data_type}"
+        logs_dir = Path("logs") / task / f"{model_cfg.name}" / f"{dataset}_{data_mode}" / f"{data_type}"
     else:
         output_dir = Path("outputs") / task / f"{data_cfg.name}"
         logs_dir = Path("logs") / task / f"{data_cfg.name}"
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=output_dir,
-        filename=f"{cfg.model.name}-{dataset}-{data_mode}-{{epoch:02d}}-{{val_loss:.4f}}",
+        filename=f"{cfg.model.name}-{dataset}-{data_mode}-{data_type}-{{epoch:02d}}-{{val_loss:.4f}}",
         monitor="val_loss",
         mode="min",
         save_top_k=3,
@@ -228,12 +228,12 @@ def train(cfg: DictConfig) -> None:
     # Setup logger
     if task == "classification":
         logger_name = f"{task}_{data_type}_{model_cfg.name}_{dataset}_{data_mode}_"
-        wandb_project = "ecg_classification"
+        wandb_project = "ecg_task_classification"
         wandb_tags = [task, model_cfg.name, dataset, data_mode, data_type]
     else:  # segmentation
         segmentation_model = cfg.get("segmentation_model", "unet3pcgm")
         logger_name = f"{task}_{segmentation_model}_{data_cfg.name}"
-        wandb_project = "ecg_segmentation"
+        wandb_project = "ecg_task_segmentation"
         wandb_tags = [task, segmentation_model, data_cfg.name]
 
     # Use WandB logger
@@ -268,7 +268,10 @@ def train(cfg: DictConfig) -> None:
     trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt_path)
 
     # Test
-    trainer.test(model, datamodule=datamodule, ckpt_path="best")
+    trainer.test(model,
+                 datamodule=datamodule,
+                 ckpt_path=str(Path(output_dir) / "last.ckpt"),
+                 weights_only=False)
 
     print(f"Training completed! Results saved to: {output_dir}")
 
