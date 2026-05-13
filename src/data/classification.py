@@ -185,6 +185,7 @@ class ECGClassificationDataModule(L.LightningDataModule):
                 sample_after=self.hparams.sample_after,
                 cleaned_data=self.use_cleaned_data,
                 transform=self.transform)
+            print(len(full_dataset))
             train_size = int(self.hparams.split_ratio * len(full_dataset))
             val_size = len(full_dataset) - train_size
             self.train_dataset, self.val_dataset = random_split(full_dataset,
