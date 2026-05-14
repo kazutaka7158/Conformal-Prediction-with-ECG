@@ -1,3 +1,4 @@
+min_epochs: 50
 max_epochs: 100
 accelerator: auto
 devices: auto

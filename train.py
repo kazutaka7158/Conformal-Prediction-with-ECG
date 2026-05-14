@@ -250,6 +250,7 @@ def train(cfg: DictConfig) -> None:
 
     # Setup trainer
     trainer = L.Trainer(
+        min_epochs=trainer_cfg.min_epochs,
         max_epochs=trainer_cfg.max_epochs,
         accelerator=trainer_cfg.accelerator,
         devices=trainer_cfg.devices,
