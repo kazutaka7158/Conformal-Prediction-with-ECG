@@ -3,7 +3,7 @@ name: ptbdb_augmented
 type: classification
 dataset: ptbdb
 
-data_type: MIHealthy
+data_type: mihealthy
 metadata_file: data/metadata/ptbdb_metadata_500.csv
 sample_before: 198
 sample_after: 200

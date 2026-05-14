@@ -68,9 +68,9 @@ def get_classification_dataset(dataset_name: str,
                                data_type: str) -> L.LightningDataModule:
     """Get classification dataset based on dataset name and data mode."""
     # Determine transform based on data mode
-    if data_mode == "clean":
-        transform = None  # No augmentation for clean mode
-    elif data_mode == "augmented":
+    # if data_mode == "clean":
+    #     transform = None  # No augmentation for clean mode
+    if data_mode == "augmented":
         aug_cfg = data_cfg.get("augmentation", {})
         transform = E.Sequential([
             E.GaussNoise(
@@ -101,8 +101,8 @@ def get_classification_dataset(dataset_name: str,
     return ECGClassificationDataModule(
         dataset_class=dataset_class,
         metadata_file=data_cfg.metadata_file,
-        train_folds=data_cfg.train_folds,
-        test_folds=data_cfg.test_folds,
+        # train_folds=data_cfg.train_folds,
+        # test_folds=data_cfg.test_folds,
         batch_size=data_cfg.batch_size,
         num_workers=data_cfg.num_workers,
         split_ratio=data_cfg.split_ratio,
@@ -153,7 +153,7 @@ def train(cfg: DictConfig) -> None:
         if dataset is None:
             raise ValueError("dataset must be specified for classification task (use 'ptbdb' or 'ptbxl')")
         if data_mode is None:
-            raise ValueError("data_mode must be specified for classification task (use 'clean' or 'augmented')")
+            raise ValueError("data_mode must be specified for classification task (use 'clean' or 'augmented' or 'default')")
         if data_type is None:
             raise ValueError("data_type must be specified for classification task (use 'mihealthy' or 'subtype')")
 

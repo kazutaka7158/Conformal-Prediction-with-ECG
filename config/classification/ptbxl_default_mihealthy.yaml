@@ -1,4 +1,3 @@
-# PTB-XL dataset - Clean data
 name: ptbxl_clean
 type: classification
 dataset: ptb_xl
