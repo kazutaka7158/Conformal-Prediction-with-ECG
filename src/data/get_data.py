@@ -10,7 +10,7 @@ from typing import Literal
 from scipy.signal import resample
 from biosppy.signals import ecg
 
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import StratifiedGroupKFold, train_test_split
 
 class DataGetter:
     def __init__(self,
@@ -170,6 +170,7 @@ class DataGetter:
                 "fold": fold
             }
             df = pd.DataFrame(metadata)
+            df = self.train_val_test_split(df)
             df.to_csv(metadata_file, index=False)
 
             self.create_folds(df=df, metadata_file=metadata_file, random_state=42, n_splits=5)
@@ -222,6 +223,7 @@ class DataGetter:
             }
 
             df = pd.DataFrame(metadata)
+            df = self.train_val_test_split(df)
             df.to_csv(metadata_file, index=False)
 
             self.create_folds(df=df, metadata_file=metadata_file, random_state=42, n_splits=5)
@@ -373,3 +375,20 @@ class DataGetter:
         for fold_idx, (train_idx, val_idx) in enumerate(sgkf.split(df["pt_path"], df["label"], df["patient_number"])):
             df.loc[val_idx, "fold"] = fold_idx
         df.to_csv(metadata_file, index=False)
+
+    def train_val_test_split(self, df: pd.DataFrame):
+        patient_numbers = df["patient_number"].unique()
+        labels = df.groupby("patient_number")["label"].first().loc[patient_numbers]
+        
+        train_patients, test_patients = train_test_split(patient_numbers,
+                                                         test_size=0.2,
+                                                         stratify=labels,
+                                                         random_state=42)
+        train_patients, val_patients = train_test_split(train_patients,
+                                                        test_size=0.1,
+                                                        stratify=labels.loc[train_patients],
+                                                        random_state=42)
+        df["split"] = "train"
+        df.loc[df["patient_number"].isin(val_patients), "split"] = "val"
+        df.loc[df["patient_number"].isin(test_patients), "split"] = "test"
+        return df
