@@ -22,22 +22,22 @@ from src.utils.denoise import WaveletDenoising
 class ECGClassificationDataset(Dataset):
     def __init__(self,
                  df: pd.DataFrame,
-                 fold_list: list=None,
+                #  fold_list: list=None,
                  sample_before: int=198,
                  sample_after: int=200,
                  cleaned_data: bool=False,
                  transform: E.Sequential=None
                  ):
         self.info = df
-        self.fold_list = fold_list
+        # self.fold_list = fold_list
         self.sample_before = sample_before
         self.sample_after = sample_after
         self.cleaned_data = cleaned_data
         self.transform = transform
         self._signal_cache = {}
 
-        if fold_list is not None:
-            self.info = self.info[self.info["fold"].isin(fold_list)].reset_index(drop=True)
+        # if fold_list is not None:
+        #     self.info = self.info[self.info["fold"].isin(fold_list)].reset_index(drop=True)
 
         valid_mask = (self.info["r_peak_indexes"] - self.sample_before > 0) & \
                      (self.info["length"] - self.info["r_peak_indexes"] > self.sample_after)
@@ -99,14 +99,14 @@ class ECGClassificationDataset(Dataset):
 class MIHealthyDataset(ECGClassificationDataset):
     def __init__(self,
                  df: pd.DataFrame,
-                 fold_list: list=None,
+                #  fold_list: list=None,
                  sample_before: int=198,
                  sample_after: int=200,
                  cleaned_data: bool=False,
                  transform=None
                  ):
         super().__init__(df,
-                         fold_list,
+                        #  fold_list,
                          sample_before,
                          sample_after,
                          cleaned_data,
@@ -121,14 +121,14 @@ class MIHealthyDataset(ECGClassificationDataset):
 class ECGSubtypeDataset(ECGClassificationDataset):
     def __init__(self,
                  df: pd.DataFrame,
-                 fold_list: list=None,
+                #  fold_list: list=None,
                  sample_before: int=198,
                  sample_after: int=200,
                  cleaned_data: bool=False,
                  transform=None
                  ):
         super().__init__(df,
-                         fold_list,
+                        #  fold_list,
                          sample_before,
                          sample_after,
                          cleaned_data,
