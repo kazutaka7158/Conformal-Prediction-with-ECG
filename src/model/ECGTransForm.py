@@ -138,11 +138,17 @@ class ECGTransFormNet(nn.Module):
         return x_out
 
 class ECGTransForm(L.LightningModule):
-    def __init__(self, num_classes=2, lr=1e-3):
+    def __init__(self, num_classes=2, lr=1e-3, class_weights=None):
         super(ECGTransForm, self).__init__()
         self.save_hyperparameters()
         self.model = ECGTransFormNet(num_classes=num_classes)
-        self.criterion = nn.CrossEntropyLoss()
+        
+        if class_weights is not None:
+            self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1, 
+                                                 weight=class_weights)
+        else:
+            self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+
         self.learning_rate = lr
 
         self.train_acc = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes)

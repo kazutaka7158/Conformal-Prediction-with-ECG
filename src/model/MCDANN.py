@@ -259,12 +259,19 @@ class MCDANNNet(nn.Module):
         return self.classifier(combined)
 
 class MCDANN(L.LightningModule):
-    def __init__(self, num_classes=2, lr=1e-3):
+    def __init__(self, num_classes=2, lr=1e-3, class_weights=None):
         super().__init__()
         self.save_hyperparameters()
         self.learning_rate = lr
         self.model = MCDANNNet(num_classes=num_classes)
-        self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+
+        if class_weights is not None:
+            self.register_buffer("class_weights", class_weights)        
+            self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1,
+                                                 weight=self.class_weights)
+        else:
+            self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+
         self.train_acc = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes)
         self.val_acc = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes)
         self.test_acc = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes)

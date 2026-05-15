@@ -1,5 +1,4 @@
-from unittest import signals
-
+import numpy as np
 import pandas as pd
 import lightning as L
 import ecgmentations as E
@@ -8,7 +7,10 @@ import torch
 from torch.nn.functional import pad
 from torch.utils.data import Dataset, DataLoader, random_split
 
+from sklearn.utils.class_weight import compute_class_weight
+
 from typing import Literal
+from abc import abstractmethod
 
 from src.utils.denoise import WaveletDenoising
 
@@ -96,6 +98,10 @@ class ECGClassificationDataset(Dataset):
             heartbeat = self.transform(heartbeat)
         return heartbeat, row
 
+    @abstractmethod
+    def get_class_weights(self):
+        pass
+
 class MIHealthyDataset(ECGClassificationDataset):
     def __init__(self,
                  df: pd.DataFrame,
@@ -117,6 +123,14 @@ class MIHealthyDataset(ECGClassificationDataset):
         heartbeat, row = super().__getitem__(idx)
         label = self.label_dict[row["label"]]
         return heartbeat, label, row["patient_number"], row["r_peak_indexes"], row["pt_path"]
+
+    def get_class_weights(self):
+        y_train = self.info["label"].map(self.label_dict).values
+        y_train = np.array(y_train)
+        class_weights = compute_class_weight(class_weight="balanced",
+                                           classes=np.array(list(self.label_dict.values())),
+                                           y=y_train)
+        return torch.tensor(class_weights, dtype=torch.float32)
 
 class ECGSubtypeDataset(ECGClassificationDataset):
     def __init__(self,
@@ -154,9 +168,17 @@ class ECGSubtypeDataset(ECGClassificationDataset):
 
         return heartbeat, label, row["patient_number"], row["r_peak_indexes"], row["pt_path"]
 
+    def get_class_weights(self):
+        y_train = self.info.loc[self.valid_indices, "subtype"].map(self.label_dict).values
+        y_train = np.array(y_train)
+        class_weights = compute_class_weight(class_weight="balanced",
+                                           classes=np.array(list(self.label_dict.values())),
+                                           y=y_train)
+        return torch.tensor(class_weights, dtype=torch.float32)
+
 class ECGClassificationDataModule(L.LightningDataModule):
     def __init__(self,
-                 dataset_class,
+                 dataset_class: ECGClassificationDataset,
                  metadata_file: str,
                 #  train_folds: list,
                 #  test_folds: list,
@@ -176,21 +198,7 @@ class ECGClassificationDataModule(L.LightningDataModule):
 
     def setup(self, stage: Literal["fit", "test"]=None):
         # Setup transform based on training mode
-        # transform = self._get_transform()
-
         if stage == "fit" or stage is None:
-            # full_dataset = self.dataset_class(
-            #     metadata_file=self.hparams.metadata_file,
-            #     fold_list=self.hparams.train_folds,
-            #     sample_before=self.hparams.sample_before,
-            #     sample_after=self.hparams.sample_after,
-            #     cleaned_data=self.use_cleaned_data,
-            #     transform=self.transform)
-            # print(len(full_dataset))
-            # train_size = int(self.hparams.split_ratio * len(full_dataset))
-            # val_size = len(full_dataset) - train_size
-            # self.train_dataset, self.val_dataset = random_split(full_dataset,
-            #                                                     [train_size, val_size])
             train_df = self.df.loc[self.df["split"] == "train"].reset_index(drop=True)
             val_df = self.df.loc[self.df["split"] == "val"].reset_index(drop=True)
             
@@ -202,7 +210,7 @@ class ECGClassificationDataModule(L.LightningDataModule):
                 cleaned_data=self.use_cleaned_data,
                 transform=self.transform
             )
-            
+
             self.val_dataset = self.dataset_class(
                 df=val_df,
                 # fold_list=self.hparams.train_folds,
@@ -211,7 +219,7 @@ class ECGClassificationDataModule(L.LightningDataModule):
                 cleaned_data=self.use_cleaned_data,
                 transform=self.transform
             )
-            
+
         elif stage == "test" or stage is None:
             test_df = self.df.loc[self.df["split"] == "test"].reset_index(drop=True)
             self.test_dataset = self.dataset_class(
@@ -245,6 +253,9 @@ class ECGClassificationDataModule(L.LightningDataModule):
         return DataLoader(
             self.test_dataset, 
             batch_size=self.hparams.batch_size, 
-            shuffle=False, 
+            shuffle=False,
             num_workers=self.hparams.num_workers,
         )
+
+    def class_weights(self):
+        return self.train_dataset.get_class_weights()

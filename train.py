@@ -31,17 +31,22 @@ def set_seed(seed: int):
     torch.backends.cudnn.benchmark = False
 
 
-def get_classification_model(model_name: str, model_cfg: DictConfig, num_classes: int) -> L.LightningModule:
+def get_classification_model(model_name: str,
+                             model_cfg: DictConfig,
+                             num_classes: int,
+                             class_weights: torch.Tensor = None) -> L.LightningModule:
     """Get classification model based on model name."""
     if model_name == "ecg_transform":
         return ECGTransForm(
             num_classes=num_classes,
             lr=model_cfg.lr,
+            class_weights=class_weights,
         )
     elif model_name == "mcdann":
         return MCDANN(
             num_classes=num_classes,
             lr=model_cfg.lr,
+            class_weights=class_weights
             # weight_decay=model_cfg.weight_decay,
         )
     else:
@@ -171,8 +176,15 @@ def train(cfg: DictConfig) -> None:
 
         # Get model and datamodule
         num_classes = data_cfg.num_classes
-        model = get_classification_model(model_cfg.name, model_cfg, num_classes)
+
         datamodule = get_classification_dataset(dataset, data_cfg, data_mode, data_type)
+        datamodule.setup(stage="fit")
+        class_weights = datamodule.train_dataset.get_class_weights()
+
+        model = get_classification_model(model_cfg.name,
+                                         model_cfg,
+                                         num_classes,
+                                         class_weights=class_weights)
 
     else:  # segmentation
         # Load segmentation dataset config
